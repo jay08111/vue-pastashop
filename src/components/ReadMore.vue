@@ -1,6 +1,6 @@
 <template>
   <p>
-    {{ readMore ? description : description.slice(0, 20) }}...<br /><span
+    {{ readMore ? description : `${description.slice(0, 20)}...` }}<br /><span
       @click="toggleReadMore"
       >{{ readMore ? "less" : "read more" }}</span
     >

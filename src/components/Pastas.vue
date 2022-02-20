@@ -9,7 +9,7 @@
       Spaghetti
     </h2>
     <div
-      v-for="{ id, name, price, image, description } in tomato"
+      v-for="{ id, name, price, image, description } in tomatoPasta"
       :key="id"
       class="pasta__container"
     >
@@ -18,9 +18,14 @@
         <ReadMore :description="description" />
         <div class="pasta__button">
           <p>${{ price }}</p>
-          <button @click="addToCart(id)" :disabled="disabledBtn(id)">
+          <button
+            @click="addToCart(id)"
+            v-if="getCheckCart"
+            :disabled="disabledBtn(id)"
+          >
             add to cart
           </button>
+          <button :disabled="disabledBtn(id)" v-else>In Cart</button>
         </div>
       </div>
       <img :src="image" :alt="name" />
@@ -32,7 +37,7 @@
       Spaghetti
     </h2>
     <div
-      v-for="{ id, name, price, image, description } in cream"
+      v-for="{ id, name, price, image, description } in creamPasta"
       :key="id"
       class="pasta__container"
     >
@@ -54,7 +59,7 @@
       <hr class="underline right" />
     </h2>
     <div
-      v-for="{ id, name, price, image, description } in side"
+      v-for="{ id, name, price, image, description } in sideDish"
       :key="id"
       class="pasta__container"
     >
@@ -93,13 +98,7 @@
       <img :src="image" :alt="name" />
     </div>
     <section :class="show">
-      <Cart
-        :cart="cart"
-        @toggleCart="toggleCart"
-        :cartItems="cartItems"
-        @deleteItem="deleteItem"
-        @clearAll="clearAll"
-      />
+      <Cart />
     </section>
   </article>
 </template>
@@ -107,66 +106,27 @@
 <script>
 import ReadMore from "./ReadMore.vue";
 import Cart from "./Cart.vue";
+import { mapGetters, mapMutations } from "vuex";
 export default {
   components: {
     ReadMore,
     Cart,
   },
-  data() {
-    return {
-      pastas: [],
-      cart: false,
-      cartItems: [],
-      checkCart: false,
-    };
-  },
   methods: {
-    async getData() {
-      const res = await fetch("https://jay08111.github.io/data/pasta.json");
-      const data = await res.json();
-      this.pastas = data.items;
-    },
-    toggleCart() {
-      this.cart = !this.cart;
-    },
-    addToCart(id) {
-      const findItem = this.pastas.find((item) => item.id === id);
-      const addItem = { ...findItem, amount: 1 };
-      this.cartItems = [...this.cartItems, addItem];
-    },
-    deleteItem(id) {
-      this.cartItems = this.cartItems.filter((item) => item.id !== id);
-    },
-    clearAll() {
-      this.cartItems = [];
-    },
-    disabledBtn(id) {
-      const cartItemsId = this.cartItems.find((item) => item.id === id);
-      if (cartItemsId) {
-        this.checkCart = true;
-        return true;
-      } else {
-        this.checkCart = false;
-        return false;
-      }
-    },
+    ...mapMutations(["disabledBtn", "addToCart", "toggleCart"]),
   },
   computed: {
-    tomato() {
-      return this.pastas.filter((item) => item.type === "tomato");
-    },
-    cream() {
-      return this.pastas.filter((item) => item.type === "cream");
-    },
-    side() {
-      return this.pastas.filter((item) => item.type === "side");
-    },
-    wine() {
-      return this.pastas.filter((item) => item.type === "wine");
-    },
+    ...mapGetters([
+      "tomatoPasta",
+      "creamPasta",
+      "sideDish",
+      "wine",
+      "getCart",
+      "getCheckCart",
+    ]),
     show() {
       let classes = ["cart__container"];
-      if (this.cart) {
+      if (this.getCart) {
         classes.push("show__cart");
       }
       return classes;
@@ -174,7 +134,7 @@ export default {
   },
   watch: {},
   created() {
-    this.getData();
+    this.$store.dispatch("FETCH_PASTA");
   },
 };
 </script>

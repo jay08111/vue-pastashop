@@ -5,7 +5,7 @@
       <h1>Cart</h1>
     </div>
     <div
-      v-for="{ id, name, price, image } in cartItems"
+      v-for="{ id, name, price, image } in getCartItems"
       :key="id"
       class="cart__item"
     >
@@ -18,7 +18,7 @@
         <font-awesome-icon icon="trash" class="icon" />
       </button>
     </div>
-    <div class="cart__total" v-if="cartItems.length > 0">
+    <div class="cart__total" v-if="getCartItems.length > 0">
       <button class="cart__clear" @click="claerAll">clear all</button>
       <p>total :</p>
     </div>
@@ -26,36 +26,14 @@
 </template>
 
 <script>
+import { mapMutations, mapGetters } from "vuex";
 export default {
-  props: {
-    cart: {
-      type: Boolean,
-    },
-    cartItems: {
-      type: Array,
-    },
-  },
   methods: {
-    toggleCart() {
-      this.$emit("toggleCart");
-    },
-    deleteItem(id) {
-      this.$emit("deleteItem", id);
-    },
-    claerAll() {
-      this.$emit("clearAll");
-    },
+    ...mapMutations(["toggleCart", "deleteItem", "clearAll"]),
   },
-  // computed: {
-  //   totalPrice() {
-  //    return let { total } = this.cartItems.reduce(
-  //       (acc: Array<Pasta[]>, curr: Array<Pasta[]>) => {
-  //         const {price} = curr;
-
-  //       }
-  //     );
-  //   },
-  // },
+  computed: {
+    ...mapGetters(["getCartItems"]),
+  },
 };
 </script>
 <style lang="scss" scoped>
